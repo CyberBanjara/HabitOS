@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>Access Your HabitOS Tracker</title>
+  <meta name="description" content="Open your Google Sheets habit tracker and make a personal copy." />
+
+  <link href="assets/img/favicon.png" rel="icon" />
+  <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon" />
+  <link href="https://fonts.googleapis.com" rel="preconnect" />
+  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Caveat:wght@600;700&display=swap"
+    rel="stylesheet" />
+
+  <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet" />
+  <link href="assets/vendor/aos/aos.css" rel="stylesheet" />
+  <link href="assets/css/main.css" rel="stylesheet" />
+  <link href="assets/css/product-landing.css" rel="stylesheet" />
+
+  <script src="assets/js/env-loader.js"></script>
+  <script src="assets/js/app-config.js"></script>
+</head>
+
+<body class="product-page access-page" data-page-id="access">
+  <div id="hbHeaderHost" data-include="partials/navbar.html"></div>
+
+  <main class="main access-main">
+    <section class="access-hero">
+      <div class="container">
+        <div class="access-card" data-aos="fade-up">
+          <div class="success-mark"><i class="bi bi-check2"></i></div>
+          <span class="scribble-label">payment complete</span>
+          <h1>Your tracker is ready.</h1>
+          <p>Open the template, make a copy, and start editing your own habit system.</p>
+
+          <div class="order-strip">
+            <div>
+              <small>Order ID</small>
+              <strong id="orderId">-</strong>
+            </div>
+            <div>
+              <small>Amount</small>
+              <strong>₹9</strong>
+            </div>
+            <div>
+              <small>Date</small>
+              <strong id="orderDate">-</strong>
+            </div>
+          </div>
+
+          <div class="access-actions">
+            <a id="makeCopyLink" href="#" target="_blank" rel="noopener" class="btn-product btn-product-primary">
+              <i class="bi bi-files"></i>
+              Make a Copy
+            </a>
+            <a id="openSheetLink" href="#" target="_blank" rel="noopener" class="btn-product btn-product-secondary">
+              <i class="bi bi-box-arrow-up-right"></i>
+              Open Template
+            </a>
+          </div>
+
+          <div id="accessStatus" class="inline-alert success">
+            Your phone number is now your login key. Come back later and use the same number to access purchases.
+          </div>
+
+          <div class="setup-steps">
+            <article>
+              <span>1</span>
+              <h3>Make your copy</h3>
+              <p>Save the tracker to your Google Drive so it becomes fully editable.</p>
+            </article>
+            <article>
+              <span>2</span>
+              <h3>Add habits</h3>
+              <p>Replace the sample habits with the actions you want to repeat.</p>
+            </article>
+            <article>
+              <span>3</span>
+              <h3>Track today</h3>
+              <p>Check off completed habits and let the dashboard update automatically.</p>
+            </article>
+          </div>
+
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="hbFooterHost" data-include="partials/footer.html"></div>
+  <script src="assets/vendor/aos/aos.js"></script>
+  <script src="assets/js/layout.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script src="assets/js/access-page.js"></script>
+  <script src="assets/js/product-theme.js"></script>
+  <script src="assets/js/product-auth-ui.js"></script>
+  <script>
+    AOS.init({ duration: 650, easing: 'ease-out-cubic', once: true });
+  </script>
+</body>
+
+</html>

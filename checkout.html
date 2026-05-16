@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>Checkout - HabitOS Habit Tracker</title>
+  <meta name="description" content="Buy the HabitOS Google Sheets habit tracker with phone-only checkout." />
+
+  <link href="assets/img/favicon.png" rel="icon" />
+  <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon" />
+  <link href="https://fonts.googleapis.com" rel="preconnect" />
+  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Caveat:wght@600;700&display=swap"
+    rel="stylesheet" />
+
+  <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet" />
+  <link href="assets/css/main.css" rel="stylesheet" />
+  <link href="assets/css/product-landing.css" rel="stylesheet" />
+
+  <script src="assets/js/env-loader.js"></script>
+  <script src="assets/js/app-config.js"></script>
+</head>
+
+<body class="product-page checkout-page" data-page-id="checkout">
+  <div id="hbHeaderHost" data-include="partials/navbar.html"></div>
+
+  <main class="main checkout-main">
+    <section class="checkout-hero">
+      <div class="container">
+        <div class="checkout-layout">
+          <div class="checkout-copy">
+            <span class="scribble-label">phone-first checkout</span>
+            <h1>Buy in one minute. No long signup form.</h1>
+            <p>
+              Enter your phone number, verify with OTP when required, pay securely, and get instant access to make your
+              own tracker copy.
+            </p>
+            <div class="flow-row compact">
+              <div><span>1</span>Phone</div>
+              <div><span>2</span>Payment</div>
+              <div><span>3</span>Access</div>
+            </div>
+          </div>
+
+          <form class="checkout-card-modern" id="phoneCheckoutForm" novalidate>
+            <div class="checkout-card-top">
+              <div>
+                <small>HabitOS Tracker</small>
+                <h2>Complete purchase</h2>
+              </div>
+              <strong>₹9</strong>
+            </div>
+
+            <div class="mini-product-card">
+              <i class="bi bi-grid-3x3-gap"></i>
+              <div>
+                <h3>Google Sheets Habit Tracker</h3>
+                <p>Streaks, charts, monthly review, and editable setup tabs.</p>
+              </div>
+            </div>
+
+            <div id="checkoutError" class="inline-alert error" hidden></div>
+            <div id="checkoutSuccess" class="inline-alert success" hidden></div>
+
+            <div class="form-step active" data-step="phone">
+              <label for="checkoutPhone">Phone number</label>
+              <div class="phone-input-wrap">
+                <span>+91</span>
+                <input id="checkoutPhone" name="phone" type="tel" inputmode="numeric" autocomplete="tel"
+                  placeholder="98765 43210" maxlength="10" required />
+              </div>
+              <p class="field-note">This creates your lightweight account for future access.</p>
+            </div>
+
+            <div class="form-step" data-step="otp">
+              <label for="checkoutOtp">OTP code</label>
+              <input id="checkoutOtp" name="otp" type="text" inputmode="numeric" autocomplete="one-time-code"
+                placeholder="6-digit code" maxlength="6" />
+              <p class="field-note">Sent to your phone via Firebase phone verification.</p>
+            </div>
+
+            <div id="checkoutRecaptcha"></div>
+
+            <button type="submit" id="payButton" class="btn-product btn-product-primary checkout-pay-btn">
+              <i class="bi bi-lock-fill"></i>
+              Continue to Payment
+            </button>
+
+            <div class="auth-alt-strip">
+              <span></span>
+              <small>or</small>
+              <span></span>
+            </div>
+
+            <a href="login.html?redirect=checkout.html" class="auth-secondary-link">
+              <span class="google-g" aria-hidden="true">G</span>
+              <span>Continue with <span class="google-word"><span>G</span><span>o</span><span>o</span><span>g</span><span>l</span><span>e</span></span></span>
+            </a>
+
+            <div class="checkout-assurance">
+              <span><i class="bi bi-shield-check"></i> Razorpay secure</span>
+              <span><i class="bi bi-person-check"></i> Login saved</span>
+              <span><i class="bi bi-lightning-charge"></i> Instant access</span>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="hbFooterHost" data-include="partials/footer.html"></div>
+  <script src="assets/js/layout.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script src="assets/js/phone-checkout.js"></script>
+  <script src="assets/js/product-theme.js"></script>
+  <script src="assets/js/product-auth-ui.js"></script>
+</body>
+
+</html>

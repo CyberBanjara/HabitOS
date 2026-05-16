@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>Sign Up - HabitOS</title>
+  <meta name="description" content="Create a HabitOS account with Google or email." />
+
+  <link href="assets/img/favicon.png" rel="icon" />
+  <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon" />
+  <link href="https://fonts.googleapis.com" rel="preconnect" />
+  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Caveat:wght@600;700&display=swap"
+    rel="stylesheet" />
+
+  <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet" />
+  <link href="assets/css/main.css" rel="stylesheet" />
+  <link href="assets/css/product-landing.css" rel="stylesheet" />
+
+  <script src="assets/js/env-loader.js"></script>
+  <script src="assets/js/app-config.js"></script>
+</head>
+
+<body class="product-page checkout-page" data-page-id="auth-signup">
+  <div id="hbHeaderHost" data-include="partials/navbar.html"></div>
+
+  <main class="main checkout-main">
+    <section class="checkout-hero">
+      <div class="container">
+        <div class="checkout-layout">
+          <div class="checkout-copy">
+            <span class="scribble-label">create account</span>
+            <h1>Save your tracker access for later.</h1>
+            <p>Create an account with Google or email. Phone OTP still works during checkout.</p>
+          </div>
+
+          <div class="checkout-card-modern">
+            <div class="checkout-card-top">
+              <div>
+                <small>HabitOS account</small>
+                <h2>Sign up</h2>
+              </div>
+              <i class="bi bi-person-plus fs-2"></i>
+            </div>
+
+            <div class="auth-status alert" data-auth-status hidden></div>
+
+            <button type="button" class="google-auth-button" id="googleSignupBtn">
+              <span class="google-g" aria-hidden="true">G</span>
+              <span>Sign up with <span class="google-word"><span>G</span><span>o</span><span>o</span><span>g</span><span>l</span><span>e</span></span></span>
+            </button>
+
+            <div class="auth-alt-strip">
+              <span></span>
+              <small>or email</small>
+              <span></span>
+            </div>
+
+            <form data-auth-form="signup" novalidate>
+              <label for="signupName">Name</label>
+              <input id="signupName" name="name" type="text" autocomplete="name" placeholder="Your name" required />
+
+              <label class="mt-3" for="signupEmail">Email</label>
+              <input id="signupEmail" name="email" type="email" autocomplete="email" placeholder="you@example.com"
+                required />
+
+              <label class="mt-3" for="signupPassword">Password</label>
+              <input id="signupPassword" name="password" type="password" autocomplete="new-password"
+                placeholder="At least 6 characters" required minlength="6" />
+
+              <label class="mt-3" for="signupConfirmPassword">Confirm password</label>
+              <input id="signupConfirmPassword" name="confirmPassword" type="password" autocomplete="new-password"
+                placeholder="Repeat password" required minlength="6" />
+
+              <button type="submit" class="btn-product btn-product-primary checkout-pay-btn">
+                <i class="bi bi-person-check"></i>
+                Create Account
+              </button>
+            </form>
+
+            <p class="auth-switch-copy">
+              Already have an account? <a href="login.html">Login</a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="hbFooterHost" data-include="partials/footer.html"></div>
+  <script src="assets/js/layout.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script src="assets/js/auth-forms.js"></script>
+  <script src="assets/js/product-theme.js"></script>
+  <script src="assets/js/product-auth-ui.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,67 @@
+:root {
+  --default-font: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --heading-font: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --background-color: #fbfaf7;
+  --default-color: #15151f;
+  --heading-color: #15151f;
+  --accent-color: #7c5cff;
+  --surface-color: #ffffff;
+  --muted-color: #6e7280;
+  --contrast-color: #ffffff;
+  scroll-behavior: smooth;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  color: var(--default-color);
+  background: var(--background-color);
+  font-family: var(--default-font);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+img,
+svg {
+  max-width: 100%;
+}
+
+a {
+  color: var(--accent-color);
+  text-decoration: none;
+}
+
+a:hover {
+  color: #5f43df;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--heading-color);
+  font-family: var(--heading-font);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.main {
+  min-height: 70vh;
+}
+
+.fw-black {
+  font-weight: 900;
+}
