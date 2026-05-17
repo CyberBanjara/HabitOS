@@ -36,9 +36,7 @@
   }
 
   function resolveApiBaseUrl(configuredValue) {
-    var detected = typeof window !== 'undefined' && window.location
-      ? window.location.origin + '/api'
-      : 'http://localhost:3000/api';
+    var detected = getDetectedApiBaseUrl();
 
     if (!configuredValue) {
       return detected;
@@ -63,6 +61,27 @@
     }
 
     return configuredValue;
+  }
+
+  function getDetectedApiBaseUrl() {
+    if (typeof window === 'undefined' || !window.location) {
+      return 'http://localhost:3000/api';
+    }
+
+    var protocol = window.location.protocol;
+    var hostname = window.location.hostname;
+    var port = window.location.port;
+    var localHosts = ['localhost', '127.0.0.1', '0.0.0.0', '[::1]'];
+
+    if (protocol === 'file:') {
+      return 'http://localhost:3000/api';
+    }
+
+    if (localHosts.indexOf(hostname) !== -1 && port && port !== '3000') {
+      return protocol + '//' + hostname + ':3000/api';
+    }
+
+    return window.location.origin + '/api';
   }
 
   function handleEnvReady(event) {
