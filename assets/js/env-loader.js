@@ -39,6 +39,9 @@
     if (window.APP_FIREBASE_CONFIG) {
       data.APP_FIREBASE_CONFIG = window.APP_FIREBASE_CONFIG;
     }
+    if (typeof window.RAZORPAY_KEY_ID === 'string') {
+      data.RAZORPAY_KEY_ID = window.RAZORPAY_KEY_ID;
+    }
     if (window.__ENV && typeof window.__ENV === 'object') {
       data = Object.assign({}, window.__ENV, data);
     }

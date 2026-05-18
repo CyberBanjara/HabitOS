@@ -41,6 +41,9 @@
     if (process.env.APP_TEMPLATE_SHEET_URL) {
       env.APP_TEMPLATE_SHEET_URL = process.env.APP_TEMPLATE_SHEET_URL;
     }
+    if (process.env.RAZORPAY_KEY_ID) {
+      env.RAZORPAY_KEY_ID = process.env.RAZORPAY_KEY_ID;
+    }
 
     var firebaseConfig = parseFirebaseConfig(process.env.APP_FIREBASE_CONFIG);
     if (firebaseConfig) {

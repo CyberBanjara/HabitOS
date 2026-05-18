@@ -18,6 +18,7 @@
     window.APP_FIREBASE_CONFIG = env.APP_FIREBASE_CONFIG || window.APP_FIREBASE_CONFIG || null;
     window.APP_TEMPLATE_SHEET_URL =
       env.APP_TEMPLATE_SHEET_URL || window.APP_TEMPLATE_SHEET_URL || '';
+    window.RAZORPAY_KEY_ID = env.RAZORPAY_KEY_ID || window.RAZORPAY_KEY_ID || '';
 
     if (
       envResolved &&

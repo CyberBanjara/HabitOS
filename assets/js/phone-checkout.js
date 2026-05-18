@@ -158,17 +158,23 @@
         },
       });
 
-      if (!orderResponse || !orderResponse.id) {
+      const orderId = orderResponse && (orderResponse.order_id || orderResponse.id);
+      const key = orderResponse && (orderResponse.key || orderResponse.key_id || window.RAZORPAY_KEY_ID);
+
+      if (!orderId) {
         throw new Error('Could not create payment order. Please try again.');
+      }
+      if (!key) {
+        throw new Error('Payment key is not configured. Please try again later.');
       }
 
       const options = {
-        key: orderResponse.key,
+        key,
         amount: orderResponse.amount,
         currency: orderResponse.currency,
         name: 'HabitOS',
         description: PRODUCT_NAME,
-        order_id: orderResponse.id,
+        order_id: orderId,
         prefill: {
           contact: state.phoneE164 ? state.phoneE164.replace('+91', '') : '',
           email: getCurrentUserEmail(),

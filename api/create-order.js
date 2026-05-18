@@ -2,11 +2,31 @@ const Razorpay = require('razorpay');
 const { verifyIdToken } = require('./_services');
 const { handleOptions, send } = require('./_http');
 
-// Initialize Razorpay
-const razorpay = new Razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID,
-    key_secret: process.env.RAZORPAY_KEY_SECRET,
-});
+const PRODUCT_PRICE_PAISE = 900;
+
+function getRazorpayClient() {
+    if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
+        throw new Error('Missing Razorpay credentials');
+    }
+
+    return new Razorpay({
+        key_id: process.env.RAZORPAY_KEY_ID,
+        key_secret: process.env.RAZORPAY_KEY_SECRET,
+    });
+}
+
+function normalizeAmount(value) {
+    if (value === undefined || value === null || value === '') {
+        return PRODUCT_PRICE_PAISE;
+    }
+
+    const amount = Number(value);
+    if (!Number.isInteger(amount) || amount < 100) {
+        return null;
+    }
+
+    return amount;
+}
 
 module.exports = async function (req, res) {
     if (handleOptions(req, res)) {
@@ -36,16 +56,21 @@ module.exports = async function (req, res) {
     }
 
     try {
-        // For fixed-price product (Habit Tracker Excel Sheet = ₹9)
-        // Amount in paise: ₹9 = 900 paise
-        const PRODUCT_PRICE_PAISE = 900;
+        const amount = normalizeAmount(req.body && req.body.amount);
+        if (!amount) {
+            return send(res, 400, { error: 'Amount must be an integer of at least 100 paise' });
+        }
 
-        // 2. Create Razorpay Order for fixed price
         const requestPhone = req.body && typeof req.body.phone === 'string' ? req.body.phone : '';
+        const requestedReceipt = req.body && typeof req.body.receipt === 'string' ? req.body.receipt.trim() : '';
+        const currency = req.body && typeof req.body.currency === 'string'
+            ? req.body.currency.trim().toUpperCase()
+            : 'INR';
+
         const options = {
-            amount: PRODUCT_PRICE_PAISE,
-            currency: 'INR',
-            receipt: `order_${Date.now()}_${uid.substring(0, 5)}`,
+            amount,
+            currency,
+            receipt: requestedReceipt || `order_${Date.now()}_${uid.substring(0, 5)}`,
             payment_capture: 1,
             notes: {
                 product: 'HabitOS Google Sheets Habit Tracker',
@@ -54,10 +79,11 @@ module.exports = async function (req, res) {
             }
         };
 
+        const razorpay = getRazorpayClient();
         const order = await razorpay.orders.create(options);
 
-        // 3. Return Order Details
         return send(res, 200, {
+            order_id: order.id,
             id: order.id,
             amount: order.amount,
             currency: order.currency,
@@ -66,6 +92,10 @@ module.exports = async function (req, res) {
 
     } catch (error) {
         console.error('Create Order Error:', error);
+        const statusCode = error && (error.statusCode || error.status);
+        if (statusCode === 401) {
+            return send(res, 401, { error: 'Razorpay authentication failed' });
+        }
         return send(res, 500, { error: 'Internal Server Error' });
     }
 };

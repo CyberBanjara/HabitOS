@@ -2,6 +2,17 @@ const crypto = require('crypto');
 const { verifyIdToken, getFirestore } = require('./_services');
 const { handleOptions, send } = require('./_http');
 
+function signaturesMatch(expected, actual) {
+    const expectedBuffer = Buffer.from(expected, 'hex');
+    const actualBuffer = Buffer.from(actual, 'hex');
+
+    if (expectedBuffer.length !== actualBuffer.length) {
+        return false;
+    }
+
+    return crypto.timingSafeEqual(expectedBuffer, actualBuffer);
+}
+
 module.exports = async function (req, res) {
     if (handleOptions(req, res)) {
         return;
@@ -36,12 +47,16 @@ module.exports = async function (req, res) {
     try {
         // 3. Verify Signature
         const secret = process.env.RAZORPAY_KEY_SECRET;
-        const generated_signature = crypto
+        if (!secret) {
+            throw new Error('Missing Razorpay secret');
+        }
+
+        const generatedSignature = crypto
             .createHmac('sha256', secret)
             .update(razorpay_order_id + '|' + razorpay_payment_id)
             .digest('hex');
 
-        if (generated_signature !== razorpay_signature) {
+        if (!signaturesMatch(generatedSignature, razorpay_signature)) {
             return send(res, 400, { error: 'Payment verification failed: Invalid signature' });
         }
 
