@@ -6,6 +6,7 @@ const cors = require('cors');
 const createOrder = require('./api/create-order');
 const verifyPayment = require('./api/verify-payment');
 const access = require('./api/access');
+const purchaseStatus = require('./api/purchase-status');
 const envHandler = require('./api/env');
 const path = require('path');
 
@@ -38,6 +39,7 @@ app.get('/api/env', createVercelHandler(envHandler));
 app.post('/api/create-order', createVercelHandler(createOrder));
 app.post('/api/verify-payment', createVercelHandler(verifyPayment));
 app.get('/api/access', createVercelHandler(access));
+app.get('/api/purchase-status', createVercelHandler(purchaseStatus));
 
 app.use(express.static(path.join(__dirname, '.')));
 

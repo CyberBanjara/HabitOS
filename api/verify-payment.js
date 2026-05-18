@@ -25,6 +25,7 @@ module.exports = async function (req, res) {
     // 1. Verify User
     let uid;
     let tokenPhone = '';
+    let tokenEmail = '';
     try {
         const authHeader = req.headers.authorization;
         if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -34,6 +35,7 @@ module.exports = async function (req, res) {
         const decoded = await verifyIdToken(token);
         uid = decoded.uid;
         tokenPhone = decoded.phone_number || '';
+        tokenEmail = decoded.email || '';
     } catch (error) {
         return send(res, 401, { error: 'Unauthorized' });
     }
@@ -89,6 +91,16 @@ module.exports = async function (req, res) {
         // Create order document
         const newOrderRef = ordersRef.doc();
         await newOrderRef.set(orderData);
+
+        // Denormalize purchase status on user doc for fast page-load checks
+        await db.collection('users').doc(uid).set({
+            purchased: true,
+            purchasedAt: new Date().toISOString(),
+            lastOrderId: newOrderRef.id,
+            razorpayOrderId: razorpay_order_id,
+            email: tokenEmail,
+            phone: phone || tokenPhone,
+        }, { merge: true });
 
         return send(res, 200, { 
             success: true, 
