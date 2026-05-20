@@ -40,7 +40,6 @@ module.exports = async function (req, res) {
 
     // 1. Verify User
     let uid;
-    let customerPhone = '';
     try {
         const authHeader = req.headers.authorization;
         if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -49,7 +48,6 @@ module.exports = async function (req, res) {
         const token = authHeader.split(' ')[1];
         const decoded = await verifyIdToken(token);
         uid = decoded.uid;
-        customerPhone = decoded.phone_number || '';
     } catch (error) {
         console.error('Auth error:', error);
         return send(res, 401, { error: 'Unauthorized: Invalid token' });
@@ -61,7 +59,6 @@ module.exports = async function (req, res) {
             return send(res, 400, { error: 'Amount must be an integer of at least 100 paise' });
         }
 
-        const requestPhone = req.body && typeof req.body.phone === 'string' ? req.body.phone : '';
         const requestedReceipt = req.body && typeof req.body.receipt === 'string' ? req.body.receipt.trim() : '';
         const currency = req.body && typeof req.body.currency === 'string'
             ? req.body.currency.trim().toUpperCase()
@@ -74,7 +71,6 @@ module.exports = async function (req, res) {
             payment_capture: 1,
             notes: {
                 product: 'HabitOS Google Sheets Habit Tracker',
-                phone: requestPhone || customerPhone,
                 uid
             }
         };

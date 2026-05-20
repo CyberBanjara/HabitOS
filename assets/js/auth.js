@@ -98,18 +98,11 @@
   function queryDom() {
     dom.signedOutDesktop = document.getElementById('authSignedOutDesktop');
     dom.signedInDesktop = document.getElementById('authSignedInDesktop');
-    dom.signedOutMobile = document.getElementById('authSignedOutMobile');
-    dom.signedInMobile = document.getElementById('authSignedInMobile');
     dom.userNameDesktop = document.getElementById('authUserNameDesktop');
     dom.userRoleDesktop = document.getElementById('authUserRoleDesktop');
-    dom.userNameMobile = document.getElementById('authUserNameMobile');
-    dom.userRoleMobile = document.getElementById('authUserRoleMobile');
     dom.logoutDesktop = document.getElementById('authLogoutButtonDesktop');
-    dom.logoutMobile = document.getElementById('authLogoutButtonMobile');
     dom.loginTriggerDesktop = document.getElementById('authLoginTriggerDesktop');
-    dom.loginTriggerMobile = document.getElementById('authLoginTriggerMobile');
     dom.loginMessageDesktop = document.getElementById('authStatusMessageDesktop');
-    dom.loginMessageMobile = document.getElementById('authStatusMessageMobile');
   }
 
   function registerEvents() {
@@ -121,22 +114,9 @@
       });
     }
 
-    if (dom.logoutMobile && !dom.logoutMobile.dataset.hbBound) {
-      dom.logoutMobile.dataset.hbBound = 'true';
-      dom.logoutMobile.addEventListener('click', (event) => {
-        event.preventDefault();
-        signOut();
-      });
-    }
-
     if (dom.loginTriggerDesktop && !dom.loginTriggerDesktop.dataset.hbBound) {
       dom.loginTriggerDesktop.dataset.hbBound = 'true';
       dom.loginTriggerDesktop.addEventListener('click', handleLoginTrigger);
-    }
-
-    if (dom.loginTriggerMobile && !dom.loginTriggerMobile.dataset.hbBound) {
-      dom.loginTriggerMobile.dataset.hbBound = 'true';
-      dom.loginTriggerMobile.addEventListener('click', handleLoginTrigger);
     }
   }
 
@@ -144,20 +124,14 @@
     const authed = isAuthenticated();
     toggleHidden(dom.signedOutDesktop, authed);
     toggleHidden(dom.signedInDesktop, !authed);
-    toggleHidden(dom.signedOutMobile, authed);
-    toggleHidden(dom.signedInMobile, !authed);
 
     if (authed && state.user) {
       const displayName = getDisplayName(state.user);
       setText(dom.userNameDesktop, displayName);
-      setText(dom.userNameMobile, displayName);
       updateRoleBadge(dom.userRoleDesktop, state.user.role);
-      updateRoleBadge(dom.userRoleMobile, state.user.role);
     } else {
       setText(dom.userNameDesktop, '');
-      setText(dom.userNameMobile, '');
       updateRoleBadge(dom.userRoleDesktop, null);
-      updateRoleBadge(dom.userRoleMobile, null);
     }
   }
 
@@ -198,7 +172,7 @@
   }
 
   function updateStatusMessages(text, options) {
-    const elements = [dom.loginMessageDesktop, dom.loginMessageMobile];
+    const elements = [dom.loginMessageDesktop];
     elements.forEach((element) => {
       if (!element) return;
       if (text) {
@@ -280,16 +254,6 @@
           const app = appModule.getApps().length ? appModule.getApp() : appModule.initializeApp(firebaseConfig);
           const auth = authModule.getAuth(app);
           const firestore = firestoreModule.getFirestore(app);
-          const isLocalhost =
-            window.location.hostname === 'localhost' ||
-            window.location.hostname === '127.0.0.1';
-
-          if (isLocalhost) {
-            auth.settings.appVerificationDisabledForTesting = true;
-            console.warn(
-              '[Firebase Auth] Localhost detected. Real SMS delivery can be limited locally; use Firebase test phone numbers here. App verification is disabled for testing only on localhost.'
-            );
-          }
 
           authModule.onIdTokenChanged(auth, handleFirebaseUser);
           state.firebaseModules = { app: appModule, auth: authModule, firestore: firestoreModule };
@@ -302,7 +266,6 @@
             authDomain: firebaseConfig.authDomain,
             domain: window.location.hostname,
             protocol: window.location.protocol,
-            localhost: isLocalhost,
           });
 
           window.firebase = {
@@ -419,7 +382,6 @@
       state.user = {
         uid: user.uid,
         email: user.email || '',
-        phoneNumber: user.phoneNumber || '',
         displayName: user.displayName || '',
         photoURL: user.photoURL || '',
         role: user.role || '',
@@ -462,7 +424,6 @@
         state.user = {
           uid: auth.currentUser.uid,
           email: auth.currentUser.email || '',
-          phoneNumber: auth.currentUser.phoneNumber || '',
           displayName: auth.currentUser.displayName || '',
           photoURL: auth.currentUser.photoURL || '',
           role: '',
@@ -476,19 +437,6 @@
       console.warn('Unable to obtain Firebase ID token', error);
       return null;
     }
-  }
-
-  async function signInWithPhoneNumber(phoneNumber, verifier) {
-    const resources = await ensureFirebaseReady();
-    if (!resources || !resources.auth || !resources.firebase) {
-      throw new Error('Phone login is unavailable right now.');
-    }
-    if (!phoneNumber || !verifier) {
-      throw new Error('Phone number and verification challenge are required.');
-    }
-    await resources.modules.auth.setPersistence(resources.auth, resources.modules.auth.browserLocalPersistence);
-    console.log('[Firebase Phone Auth] OTP request start', { phoneNumber, domain: window.location.hostname });
-    return resources.modules.auth.signInWithPhoneNumber(resources.auth, phoneNumber, verifier);
   }
 
   async function signInWithEmail(email, password) {
@@ -621,7 +569,6 @@
     isAuthenticated,
     getUser: () => (state.user ? Object.assign({}, state.user) : null),
     signIn: (options) => signInWithFirebase(options),
-    signInWithPhoneNumber,
     signInWithEmail,
     createUserWithEmail,
     signInWithGoogle,

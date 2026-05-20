@@ -36,7 +36,7 @@
   async function verifyReturningAccess(status, orderEl) {
     const token = await waitForToken();
     if (!token) {
-      setStatus(status, 'Log in with the phone number used at checkout to access your tracker.', 'error');
+      setStatus(status, 'Log in with your HabitOS account to access your tracker.', 'error');
       setAccessButtonsDisabled(true);
       return;
     }
@@ -44,15 +44,15 @@
     try {
       const response = await window.Auth.apiFetch('/api/access', { method: 'GET' });
       if (!response || !response.hasAccess) {
-        setStatus(status, 'No paid tracker order was found for this phone number.', 'error');
+        setStatus(status, 'No paid tracker order was found for this account.', 'error');
         setAccessButtonsDisabled(true);
         return;
       }
       if (orderEl && response.order_id) orderEl.textContent = response.order_id;
-      setStatus(status, 'Access verified for your phone account. Your tracker links are ready.', 'success');
+      setStatus(status, 'Access verified for your account. Your tracker links are ready.', 'success');
       setAccessButtonsDisabled(false);
     } catch (error) {
-      setStatus(status, 'Log in with the phone number used at checkout to access your tracker.', 'error');
+      setStatus(status, 'Log in with your HabitOS account to access your tracker.', 'error');
       setAccessButtonsDisabled(true);
     }
   }

@@ -5,7 +5,7 @@
   <meta charset="utf-8" />
   <meta content="width=device-width, initial-scale=1.0" name="viewport" />
   <title>Checkout - HabitOS Habit Tracker</title>
-  <meta name="description" content="Buy the HabitOS Google Sheets habit tracker with phone-only checkout." />
+  <meta name="description" content="Buy the HabitOS Google Sheets habit tracker with your HabitOS account." />
 
   <link href="assets/img/favicon.png" rel="icon" />
   <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon" />
@@ -32,20 +32,19 @@
       <div class="container">
         <div class="checkout-layout">
           <div class="checkout-copy">
-            <span class="scribble-label">phone-first checkout</span>
-            <h1>Buy in one minute. No long signup form.</h1>
+            <span class="scribble-label">account checkout</span>
+            <h1>Buy in one minute with your account.</h1>
             <p>
-              Enter your phone number, verify with OTP when required, pay securely, and get instant access to make your
-              own tracker copy.
+              Sign in with Google or email, pay securely, and get instant access to make your own tracker copy.
             </p>
             <div class="flow-row compact">
-              <div><span>1</span>Phone</div>
+              <div><span>1</span>Login</div>
               <div><span>2</span>Payment</div>
               <div><span>3</span>Access</div>
             </div>
           </div>
 
-          <form class="checkout-card-modern" id="phoneCheckoutForm" novalidate>
+          <form class="checkout-card-modern" id="checkoutForm" novalidate>
             <div class="checkout-card-top">
               <div>
                 <small>HabitOS Tracker</small>
@@ -65,42 +64,20 @@
             <div id="checkoutError" class="inline-alert error" hidden></div>
             <div id="checkoutSuccess" class="inline-alert success" hidden></div>
 
-            <div class="form-step active" data-step="phone">
-              <label for="checkoutPhone">Phone number</label>
-              <div class="phone-input-wrap">
-                <span>+91</span>
-                <input id="checkoutPhone" name="phone" type="tel" inputmode="numeric" autocomplete="tel"
-                  placeholder="98765 43210" maxlength="10" required />
-              </div>
-              <p class="field-note">This creates your lightweight account for future access.</p>
-            </div>
-
-            <div class="form-step" data-step="otp">
-              <label for="checkoutOtp">OTP code</label>
-              <input id="checkoutOtp" name="otp" type="text" inputmode="numeric" autocomplete="one-time-code"
-                placeholder="6-digit code" maxlength="6" />
-              <p class="field-note">Sent to your phone via Firebase phone verification.</p>
-            </div>
-
-            <div id="recaptcha-container" class="recaptcha-fallback"></div>
-
             <button type="submit" id="payButton" class="btn-product btn-product-primary checkout-pay-btn">
               <i class="bi bi-lock-fill"></i>
               Continue to Payment
             </button>
-            <button type="button" id="checkoutResendButton" class="auth-secondary-link" hidden>
-              Resend OTP
-            </button>
 
             <div class="auth-alt-strip">
               <span></span>
-              <small>or</small>
+              <small>need to sign in?</small>
               <span></span>
             </div>
 
             <a href="login.html?redirect=checkout.html" class="auth-secondary-link">
-              <span class="google-g" aria-hidden="true">G</span>
-              <span>Continue with <span class="google-word"><span>G</span><span>o</span><span>o</span><span>g</span><span>l</span><span>e</span></span></span>
+              <i class="bi bi-person-check"></i>
+              <span>Login or Create Account</span>
             </a>
 
             <div class="checkout-assurance">
@@ -117,9 +94,8 @@
   <div id="hbFooterHost" data-include="partials/footer.html"></div>
   <script src="assets/js/layout.js"></script>
   <script src="assets/js/auth.js"></script>
-  <script src="assets/js/firebase-phone-auth.js"></script>
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-  <script src="assets/js/phone-checkout.js"></script>
+  <script src="assets/js/checkout.js"></script>
   <script src="assets/js/product-theme.js"></script>
   <script src="assets/js/product-auth-ui.js"></script>
   <script src="assets/js/purchase-state.js"></script>

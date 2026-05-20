@@ -24,7 +24,6 @@ module.exports = async function (req, res) {
 
     // 1. Verify User
     let uid;
-    let tokenPhone = '';
     let tokenEmail = '';
     try {
         const authHeader = req.headers.authorization;
@@ -34,14 +33,13 @@ module.exports = async function (req, res) {
         const token = authHeader.split(' ')[1];
         const decoded = await verifyIdToken(token);
         uid = decoded.uid;
-        tokenPhone = decoded.phone_number || '';
         tokenEmail = decoded.email || '';
     } catch (error) {
         return send(res, 401, { error: 'Unauthorized' });
     }
 
     // 2. Validate Input
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, product, phone } = req.body || {};
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, product } = req.body || {};
     if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
         return send(res, 400, { error: 'Missing payment details' });
     }
@@ -74,7 +72,7 @@ module.exports = async function (req, res) {
             amountPaise: 900,
             currency: 'INR',
             product: product || 'HabitOS Google Sheets Habit Tracker',
-            customerPhone: phone || tokenPhone,
+            customerEmail: tokenEmail,
             items: [{
                 name: 'HabitOS Google Sheets Habit Tracker',
                 description: 'Professional habit tracking template with automatic formulas',
@@ -99,7 +97,6 @@ module.exports = async function (req, res) {
             lastOrderId: newOrderRef.id,
             razorpayOrderId: razorpay_order_id,
             email: tokenEmail,
-            phone: phone || tokenPhone,
         }, { merge: true });
 
         return send(res, 200, { 

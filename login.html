@@ -5,7 +5,7 @@
   <meta charset="utf-8" />
   <meta content="width=device-width, initial-scale=1.0" name="viewport" />
   <title>Login - HabitOS</title>
-  <meta name="description" content="Log in to HabitOS with phone, Google, or email." />
+  <meta name="description" content="Log in to HabitOS with Google or email." />
 
   <link href="assets/img/favicon.png" rel="icon" />
   <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon" />
@@ -34,7 +34,7 @@
           <div class="checkout-copy">
             <span class="scribble-label">welcome back</span>
             <h1>Log in your way.</h1>
-            <p>Use the phone number from checkout, or continue with Google or email/password.</p>
+            <p>Continue with Google or email/password to access your tracker and purchases.</p>
           </div>
 
           <div class="checkout-card-modern">
@@ -54,39 +54,6 @@
               <span class="google-g" aria-hidden="true">G</span>
               <span>Continue with <span class="google-word"><span>G</span><span>o</span><span>o</span><span>g</span><span>l</span><span>e</span></span></span>
             </button>
-
-            <div class="auth-alt-strip">
-              <span></span>
-              <small>or phone OTP</small>
-              <span></span>
-            </div>
-
-            <form id="phoneLoginForm" novalidate>
-              <div class="form-step active" data-step="phone">
-                <label for="loginPhone">Phone number</label>
-                <div class="phone-input-wrap">
-                  <span>+91</span>
-                  <input id="loginPhone" name="phone" type="tel" inputmode="numeric" autocomplete="tel"
-                    placeholder="98765 43210" maxlength="10" required />
-                </div>
-              </div>
-
-              <div class="form-step" data-step="otp">
-                <label for="loginOtp">OTP code</label>
-                <input id="loginOtp" name="otp" type="text" inputmode="numeric" autocomplete="one-time-code"
-                  placeholder="6-digit code" maxlength="6" />
-              </div>
-
-              <div id="recaptcha-container" class="recaptcha-fallback"></div>
-
-              <button type="submit" id="loginButton" class="btn-product btn-product-primary checkout-pay-btn">
-                <i class="bi bi-shield-lock"></i>
-                Send OTP
-              </button>
-              <button type="button" id="loginResendButton" class="auth-secondary-link" hidden>
-                Resend OTP
-              </button>
-            </form>
 
             <div class="auth-alt-strip">
               <span></span>
@@ -120,8 +87,6 @@
   <script src="assets/js/layout.js"></script>
   <script src="assets/js/auth.js"></script>
   <script src="assets/js/auth-forms.js"></script>
-  <script src="assets/js/firebase-phone-auth.js"></script>
-  <script src="assets/js/phone-login.js"></script>
   <script src="assets/js/product-theme.js"></script>
   <script src="assets/js/product-auth-ui.js"></script>
   <script src="assets/js/purchase-state.js"></script>

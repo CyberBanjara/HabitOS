@@ -36,7 +36,7 @@
     bindAccountMenu(authLink, accountMenu, accountDropdown);
 
     if (isAuthed) {
-      const display = user.displayName || user.email || user.phoneNumber || 'Account';
+      const display = user.displayName || user.email || 'Account';
       authLink.href = '#account';
       authLink.classList.add('is-authenticated');
       authLink.title = display;
