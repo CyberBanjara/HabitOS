@@ -48,6 +48,10 @@
     tokenExpiresAt: null,
     lastLoginAuthTime: null,
     firebaseReady: false,
+    firebaseModules: null,
+    firebaseApp: null,
+    firebaseAuth: null,
+    firebaseFirestore: null,
   };
 
   const dom = {};
@@ -245,12 +249,12 @@
   function ensureFirebaseReady() {
     return ensureEnvironmentReady().then(() => {
       if (state.firebaseReady && window.firebase) {
-        const firebase = window.firebase;
         return {
-          firebase,
-          app: firebase.app(),
-          auth: firebase.auth(),
-          firestore: firebase.firestore(),
+          firebase: window.firebase,
+          app: state.firebaseApp,
+          auth: state.firebaseAuth,
+          firestore: state.firebaseFirestore,
+          modules: state.firebaseModules,
         };
       }
 
@@ -263,30 +267,52 @@
         return Promise.reject(new Error('Missing Firebase configuration. Set window.APP_FIREBASE_CONFIG before loading auth.js.'));
       }
 
-      const scripts = [
-        'https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js',
-        'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js',
-        'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js',
-      ];
-
-      firebaseReadyPromise = scripts
-        .reduce((promise, src) => promise.then(() => loadScriptOnce(src)), Promise.resolve())
-        .then(() => {
-          const firebase = window.firebase;
-          if (!firebase || !firebase.initializeApp) {
-            throw new Error('Firebase SDK failed to load.');
+      firebaseReadyPromise = Promise.all([
+        import('https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js'),
+        import('https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js'),
+        import('https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js'),
+      ])
+        .then(([appModule, authModule, firestoreModule]) => {
+          if (!appModule || !appModule.initializeApp || !authModule || !authModule.getAuth) {
+            throw new Error('Firebase modular SDK failed to load.');
           }
-          if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-          }
-          const app = firebase.app();
-          const auth = firebase.auth();
-          const firestore = firebase.firestore();
 
-          auth.onIdTokenChanged(handleFirebaseUser);
+          const app = appModule.getApps().length ? appModule.getApp() : appModule.initializeApp(firebaseConfig);
+          const auth = authModule.getAuth(app);
+          const firestore = firestoreModule.getFirestore(app);
+          const isLocalhost =
+            window.location.hostname === 'localhost' ||
+            window.location.hostname === '127.0.0.1';
+
+          if (isLocalhost) {
+            auth.settings.appVerificationDisabledForTesting = true;
+            console.warn(
+              '[Firebase Auth] Localhost detected. Real SMS delivery can be limited locally; use Firebase test phone numbers here. App verification is disabled for testing only on localhost.'
+            );
+          }
+
+          authModule.onIdTokenChanged(auth, handleFirebaseUser);
+          state.firebaseModules = { app: appModule, auth: authModule, firestore: firestoreModule };
+          state.firebaseApp = app;
+          state.firebaseAuth = auth;
+          state.firebaseFirestore = firestore;
           state.firebaseReady = true;
+          console.log('[Firebase Auth] initialized', {
+            projectId: firebaseConfig.projectId,
+            authDomain: firebaseConfig.authDomain,
+            domain: window.location.hostname,
+            protocol: window.location.protocol,
+            localhost: isLocalhost,
+          });
 
-          return { firebase, app, auth, firestore };
+          window.firebase = {
+            app: () => app,
+            auth: () => auth,
+            firestore: () => firestore,
+            modules: state.firebaseModules,
+          };
+
+          return { firebase: window.firebase, app, auth, firestore, modules: state.firebaseModules };
         })
         .catch((error) => {
           firebaseReadyPromise = null;
@@ -294,42 +320,6 @@
         });
 
       return firebaseReadyPromise;
-    });
-  }
-
-  function loadScriptOnce(src) {
-    return new Promise((resolve, reject) => {
-      if (document.querySelector(`script[data-hb-src="${src}"]`)) {
-        resolve();
-        return;
-      }
-
-      const existing = Array.from(document.querySelectorAll('script')).find((script) => script.src === src);
-      if (existing) {
-        if (existing.dataset.hbLoaded === 'true') {
-          resolve();
-          return;
-        }
-        existing.addEventListener('load', () => {
-          existing.dataset.hbLoaded = 'true';
-          resolve();
-        }, { once: true });
-        existing.addEventListener('error', reject, { once: true });
-        return;
-      }
-
-      const script = document.createElement('script');
-      script.src = src;
-      script.async = true;
-      script.dataset.hbSrc = src;
-      script.addEventListener('load', () => {
-        script.dataset.hbLoaded = 'true';
-        resolve();
-      }, { once: true });
-      script.addEventListener('error', () => {
-        reject(new Error(`Failed to load script: ${src}`));
-      }, { once: true });
-      document.head.appendChild(script);
     });
   }
 
@@ -365,7 +355,7 @@
 
   function signOut() {
     return ensureFirebaseReady()
-      .then(({ auth }) => auth.signOut())
+      .then(({ auth, modules }) => modules.auth.signOut(auth))
       .catch(() => {
         clearAuthState({ silent: true });
       })
@@ -455,12 +445,12 @@
     const { forceRefresh = false } = options || {};
     await ensureFirebaseReady().catch(() => null);
 
-    const firebase = window.firebase;
-    if (!firebase) {
+    const resources = await ensureFirebaseReady().catch(() => null);
+    if (!resources || !resources.auth || !resources.modules) {
       return null;
     }
 
-    const auth = firebase.auth();
+    const auth = resources.auth;
     if (!auth.currentUser) {
       return null;
     }
@@ -496,8 +486,32 @@
     if (!phoneNumber || !verifier) {
       throw new Error('Phone number and verification challenge are required.');
     }
-    await resources.auth.setPersistence(resources.firebase.auth.Auth.Persistence.LOCAL);
-    return resources.auth.signInWithPhoneNumber(phoneNumber, verifier);
+    await resources.modules.auth.setPersistence(resources.auth, resources.modules.auth.browserLocalPersistence);
+    console.log('[Firebase Phone Auth] OTP request start', { phoneNumber, domain: window.location.hostname });
+    return resources.modules.auth.signInWithPhoneNumber(resources.auth, phoneNumber, verifier);
+  }
+
+  async function signInWithEmail(email, password) {
+    const resources = await ensureFirebaseReady();
+    await resources.modules.auth.setPersistence(resources.auth, resources.modules.auth.browserLocalPersistence);
+    return resources.modules.auth.signInWithEmailAndPassword(resources.auth, email, password);
+  }
+
+  async function createUserWithEmail(email, password, displayName) {
+    const resources = await ensureFirebaseReady();
+    await resources.modules.auth.setPersistence(resources.auth, resources.modules.auth.browserLocalPersistence);
+    const credential = await resources.modules.auth.createUserWithEmailAndPassword(resources.auth, email, password);
+    if (credential && credential.user && displayName) {
+      await resources.modules.auth.updateProfile(credential.user, { displayName });
+    }
+    return credential;
+  }
+
+  async function signInWithGoogle() {
+    const resources = await ensureFirebaseReady();
+    await resources.modules.auth.setPersistence(resources.auth, resources.modules.auth.browserLocalPersistence);
+    const provider = new resources.modules.auth.GoogleAuthProvider();
+    return resources.modules.auth.signInWithPopup(resources.auth, provider);
   }
 
   function buildApiUrl(path) {
@@ -608,6 +622,9 @@
     getUser: () => (state.user ? Object.assign({}, state.user) : null),
     signIn: (options) => signInWithFirebase(options),
     signInWithPhoneNumber,
+    signInWithEmail,
+    createUserWithEmail,
+    signInWithGoogle,
     signOut,
     apiFetch,
     ensureFirebaseReady,

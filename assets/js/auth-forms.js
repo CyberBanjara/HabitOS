@@ -112,9 +112,7 @@
     setStatus(statusElement, 'info', 'Signing you in...');
 
     try {
-      const resources = await window.Auth.ensureFirebaseReady();
-      await resources.auth.setPersistence(resources.firebase.auth.Auth.Persistence.LOCAL);
-      await resources.auth.signInWithEmailAndPassword(email, password);
+      await window.Auth.signInWithEmail(email, password);
       setStatus(statusElement, 'success', 'Signed in! Redirecting…');
       redirectToTarget();
     } catch (error) {
@@ -151,16 +149,7 @@
     setStatus(statusElement, 'info', 'Creating your account...');
 
     try {
-      const resources = await window.Auth.ensureFirebaseReady();
-      await resources.auth.setPersistence(resources.firebase.auth.Auth.Persistence.LOCAL);
-      const credential = await resources.auth.createUserWithEmailAndPassword(email, password);
-      if (credential && credential.user && name) {
-        try {
-          await credential.user.updateProfile({ displayName: name });
-        } catch (profileError) {
-          console.warn('Auth forms: unable to update display name', profileError);
-        }
-      }
+      await window.Auth.createUserWithEmail(email, password, name);
       setStatus(statusElement, 'success', 'Account created! Redirecting…');
       redirectToTarget();
     } catch (error) {
@@ -177,11 +166,7 @@
     if (btn) btn.disabled = true;
 
     try {
-      const resources = await window.Auth.ensureFirebaseReady();
-      await resources.auth.setPersistence(resources.firebase.auth.Auth.Persistence.LOCAL);
-
-      const provider = new resources.firebase.auth.GoogleAuthProvider();
-      await resources.auth.signInWithPopup(provider);
+      await window.Auth.signInWithGoogle();
 
       setStatus(statusElement, 'success', 'Signed in! Redirecting…');
       redirectToTarget();

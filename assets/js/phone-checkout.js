@@ -8,7 +8,7 @@
     step: 'phone',
     phoneE164: '',
     confirmationResult: null,
-    recaptchaVerifier: null,
+    resendTimer: null,
     razorpayReady: false,
     autoPaymentStarted: false,
   };
@@ -24,15 +24,23 @@
     dom.button = document.getElementById('payButton');
     dom.error = document.getElementById('checkoutError');
     dom.success = document.getElementById('checkoutSuccess');
+    dom.resend = document.getElementById('checkoutResendButton');
     dom.phoneStep = document.querySelector('[data-step="phone"]');
     dom.otpStep = document.querySelector('[data-step="otp"]');
     dom.authAlt = document.querySelector('.auth-alt-strip');
     dom.authSecondary = document.querySelector('.auth-secondary-link');
 
     dom.form.addEventListener('submit', handleSubmit);
+    if (dom.resend) {
+      dom.resend.addEventListener('click', sendOtp);
+    }
     dom.phone.addEventListener('input', () => {
       dom.phone.value = dom.phone.value.replace(/\D/g, '').slice(0, 10);
     });
+
+    if (window.FirebasePhoneAuth) {
+      window.FirebasePhoneAuth.debugEnvironment();
+    }
 
     loadRazorpayScript().catch((error) => showError(error.message));
     syncAuthenticatedCheckout();
@@ -92,9 +100,9 @@
   }
 
   async function sendOtp() {
-    const phone = normalizePhone(dom.phone.value);
+    const phone = window.FirebasePhoneAuth.normalizeIndiaPhone(dom.phone.value);
     if (!phone) {
-      showError('Enter a valid 10-digit phone number.');
+      showError('Enter a valid phone number in E.164 format, for example +919876543210.');
       dom.phone.focus();
       return;
     }
@@ -109,8 +117,12 @@
       }
 
       state.phoneE164 = phone;
-      const verifier = await getRecaptchaVerifier();
-      state.confirmationResult = await window.Auth.signInWithPhoneNumber(phone, verifier);
+      const result = await window.FirebasePhoneAuth.sendOTP(phone, {
+        invisibleTargetId: 'payButton',
+        visibleContainerId: 'recaptcha-container',
+        resendSeconds: 60,
+      });
+      state.confirmationResult = result.confirmationResult;
       state.step = 'otp';
       dom.phoneStep.classList.remove('active');
       dom.otpStep.classList.add('active');
@@ -118,8 +130,8 @@
       dom.otp.focus();
       showSuccess('OTP sent. Enter it once, then payment opens.');
       setIdle('Verify & Pay ₹9');
+      startResendTimer();
     } catch (error) {
-      resetRecaptcha();
       setIdle('Continue to Payment');
       showError(getFriendlyError(error));
     }
@@ -135,7 +147,7 @@
 
     try {
       setLoading('Verifying...');
-      await state.confirmationResult.confirm(otp);
+      await window.FirebasePhoneAuth.verifyOTP(otp, state.confirmationResult);
       await waitForAuthToken();
       await beginPayment();
     } catch (error) {
@@ -244,39 +256,6 @@
     }
   }
 
-  function normalizePhone(value) {
-    const digits = (value || '').replace(/\D/g, '');
-    if (!/^[6-9]\d{9}$/.test(digits)) return '';
-    return `+91${digits}`;
-  }
-
-  async function getRecaptchaVerifier() {
-    if (!window.Auth || typeof window.Auth.ensureFirebaseReady !== 'function' || typeof window.Auth.signInWithPhoneNumber !== 'function') {
-      throw new Error('Phone login is not initialized.');
-    }
-
-    const { firebase } = await window.Auth.ensureFirebaseReady();
-    if (state.recaptchaVerifier) {
-      return state.recaptchaVerifier;
-    }
-
-    state.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('checkoutRecaptcha', {
-      size: 'invisible',
-      callback: function () {},
-    });
-    await state.recaptchaVerifier.render();
-    return state.recaptchaVerifier;
-  }
-
-  function resetRecaptcha() {
-    if (state.recaptchaVerifier && typeof state.recaptchaVerifier.clear === 'function') {
-      state.recaptchaVerifier.clear();
-    }
-    state.recaptchaVerifier = null;
-    const host = document.getElementById('checkoutRecaptcha');
-    if (host) host.innerHTML = '';
-  }
-
   function waitForAuthToken() {
     return new Promise((resolve) => {
       let attempts = 0;
@@ -330,6 +309,25 @@
     dom.button.innerHTML = `<i class="bi bi-lock-fill"></i>${text}`;
   }
 
+  function startResendTimer() {
+    if (!dom.resend) return;
+    window.clearInterval(state.resendTimer);
+    dom.resend.hidden = false;
+    const tick = () => {
+      const seconds = window.FirebasePhoneAuth.getResendSecondsRemaining();
+      if (seconds > 0) {
+        dom.resend.disabled = true;
+        dom.resend.textContent = `Resend OTP in ${seconds}s`;
+        return;
+      }
+      dom.resend.disabled = false;
+      dom.resend.textContent = 'Resend OTP';
+      window.clearInterval(state.resendTimer);
+    };
+    tick();
+    state.resendTimer = window.setInterval(tick, 1000);
+  }
+
   function getIdleButtonText() {
     if (state.step === 'otp') return 'Verify & Pay ₹9';
     if (state.step === 'payment') return 'Pay Securely ₹9';
@@ -352,17 +350,10 @@
   }
 
   function getFriendlyError(error) {
-    const message = error && error.message ? error.message : 'Something went wrong. Please try again.';
-    if (/firebase|configuration|apiKey/i.test(message)) {
-      return 'Phone verification is not configured yet. Enable Firebase phone auth and check APP_FIREBASE_CONFIG.';
+    if (window.FirebasePhoneAuth && typeof window.FirebasePhoneAuth.friendlyError === 'function') {
+      return window.FirebasePhoneAuth.friendlyError(error);
     }
-    if (/auth\/invalid-verification-code/i.test(message)) {
-      return 'That OTP is not correct. Please check the code and try again.';
-    }
-    if (/auth\/too-many-requests/i.test(message)) {
-      return 'Too many attempts. Please wait a few minutes and try again.';
-    }
-    return message;
+    return error && error.message ? error.message : 'Something went wrong. Please try again.';
   }
 
   if (document.readyState === 'loading') {

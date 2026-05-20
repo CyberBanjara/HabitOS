@@ -77,11 +77,14 @@
                   placeholder="6-digit code" maxlength="6" />
               </div>
 
-              <div id="loginRecaptcha"></div>
+              <div id="recaptcha-container" class="recaptcha-fallback"></div>
 
               <button type="submit" id="loginButton" class="btn-product btn-product-primary checkout-pay-btn">
                 <i class="bi bi-shield-lock"></i>
                 Send OTP
+              </button>
+              <button type="button" id="loginResendButton" class="auth-secondary-link" hidden>
+                Resend OTP
               </button>
             </form>
 
@@ -117,6 +120,7 @@
   <script src="assets/js/layout.js"></script>
   <script src="assets/js/auth.js"></script>
   <script src="assets/js/auth-forms.js"></script>
+  <script src="assets/js/firebase-phone-auth.js"></script>
   <script src="assets/js/phone-login.js"></script>
   <script src="assets/js/product-theme.js"></script>
   <script src="assets/js/product-auth-ui.js"></script>
