@@ -1,6 +1,6 @@
 const crypto = require('crypto');
 const { verifyIdToken, getFirestore } = require('./_services');
-const { handleOptions, send } = require('./_http');
+const { guard, handleOptions, requireAuthHeader, send } = require('./_http');
 
 function signaturesMatch(expected, actual) {
     const expectedBuffer = Buffer.from(expected, 'hex');
@@ -17,35 +17,34 @@ module.exports = async function (req, res) {
     if (handleOptions(req, res)) {
         return;
     }
-
-    if (req.method !== 'POST') {
-        return send(res, 405, { error: 'Method not allowed' });
+    if (guard(req, res, ['POST'])) {
+        return;
     }
 
-    // 1. Verify User
     let uid;
     let tokenEmail = '';
     try {
-        const authHeader = req.headers.authorization;
-        if (!authHeader || !authHeader.startsWith('Bearer ')) {
-            return send(res, 401, { error: 'Unauthorized: Missing token' });
+        const token = requireAuthHeader(req);
+        if (!token) {
+            return send(req, res, 401, { error: 'Unauthorized' });
         }
-        const token = authHeader.split(' ')[1];
         const decoded = await verifyIdToken(token);
         uid = decoded.uid;
         tokenEmail = decoded.email || '';
     } catch (error) {
-        return send(res, 401, { error: 'Unauthorized' });
+        return send(req, res, 401, { error: 'Unauthorized' });
     }
 
-    // 2. Validate Input
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature, product } = req.body || {};
-    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
-        return send(res, 400, { error: 'Missing payment details' });
+    if (
+        !/^order_[A-Za-z0-9]+$/.test(razorpay_order_id || '') ||
+        !/^pay_[A-Za-z0-9]+$/.test(razorpay_payment_id || '') ||
+        !/^[a-f0-9]{64}$/i.test(razorpay_signature || '')
+    ) {
+        return send(req, res, 400, { error: 'Invalid payment details' });
     }
 
     try {
-        // 3. Verify Signature
         const secret = process.env.RAZORPAY_KEY_SECRET;
         if (!secret) {
             throw new Error('Missing Razorpay secret');
@@ -57,21 +56,19 @@ module.exports = async function (req, res) {
             .digest('hex');
 
         if (!signaturesMatch(generatedSignature, razorpay_signature)) {
-            return send(res, 400, { error: 'Payment verification failed: Invalid signature' });
+            return send(req, res, 400, { error: 'Payment verification failed' });
         }
 
-        // 4. Store Order in Firestore
         const db = getFirestore();
         const ordersRef = db.collection('users').doc(uid).collection('orders');
 
-        // For Habit Tracker product: ₹9 = 900 paise
         const orderData = {
             razorpay_order_id,
             razorpay_payment_id,
-            amount: 9, // INR
+            amount: 9,
             amountPaise: 900,
             currency: 'INR',
-            product: product || 'HabitOS Google Sheets Habit Tracker',
+            product: 'HabitOS Google Sheets Habit Tracker',
             customerEmail: tokenEmail,
             items: [{
                 name: 'HabitOS Google Sheets Habit Tracker',
@@ -86,11 +83,9 @@ module.exports = async function (req, res) {
             updatedAt: new Date().toISOString(),
         };
 
-        // Create order document
         const newOrderRef = ordersRef.doc();
         await newOrderRef.set(orderData);
 
-        // Denormalize purchase status on user doc for fast page-load checks
         await db.collection('users').doc(uid).set({
             purchased: true,
             purchasedAt: new Date().toISOString(),
@@ -99,7 +94,7 @@ module.exports = async function (req, res) {
             email: tokenEmail,
         }, { merge: true });
 
-        return send(res, 200, { 
+        return send(req, res, 200, {
             success: true, 
             message: 'Payment verified and order created',
             order_id: newOrderRef.id
@@ -107,6 +102,6 @@ module.exports = async function (req, res) {
 
     } catch (error) {
         console.error('Verify Payment Error:', error);
-        return send(res, 500, { error: 'Internal Server Error' });
+        return send(req, res, 500, { error: 'Internal Server Error' });
     }
 };

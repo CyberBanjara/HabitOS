@@ -1,26 +1,24 @@
 const { verifyIdToken, getFirestore } = require('./_services');
-const { handleOptions, send } = require('./_http');
+const { guard, handleOptions, requireAuthHeader, send } = require('./_http');
 
 module.exports = async function (req, res) {
     if (handleOptions(req, res)) {
         return;
     }
-
-    if (req.method !== 'GET') {
-        return send(res, 405, { error: 'Method not allowed' });
+    if (guard(req, res, ['GET'])) {
+        return;
     }
 
     let uid;
     try {
-        const authHeader = req.headers.authorization;
-        if (!authHeader || !authHeader.startsWith('Bearer ')) {
-            return send(res, 401, { error: 'Unauthorized: Missing token' });
+        const token = requireAuthHeader(req);
+        if (!token) {
+            return send(req, res, 401, { error: 'Unauthorized' });
         }
-        const token = authHeader.split(' ')[1];
         const decoded = await verifyIdToken(token);
         uid = decoded.uid;
     } catch (error) {
-        return send(res, 401, { error: 'Unauthorized' });
+        return send(req, res, 401, { error: 'Unauthorized' });
     }
 
     try {
@@ -32,13 +30,13 @@ module.exports = async function (req, res) {
         const data = doc.exists ? doc.data() : {};
         const purchased = Boolean(data.purchased);
 
-        return send(res, 200, {
+        return send(req, res, 200, {
             purchased,
             purchasedAt: data.purchasedAt || null,
             lastOrderId: data.lastOrderId || null,
         });
     } catch (error) {
         console.error('Purchase Status Error:', error);
-        return send(res, 500, { error: 'Internal Server Error' });
+        return send(req, res, 500, { error: 'Internal Server Error' });
     }
 };

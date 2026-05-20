@@ -34,9 +34,6 @@
       if (direct) {
         return direct;
       }
-      if (window.HBEnv && typeof window.HBEnv.get === 'function') {
-        return coerceFirebaseConfig(window.HBEnv.get('APP_FIREBASE_CONFIG'));
-      }
       return null;
     },
     authCookieName: 'hbAuthToken',
@@ -57,28 +54,9 @@
   const dom = {};
   const observers = new Set();
 
-  let envReadyPromise = null;
   let firebaseReadyPromise = null;
   function ensureEnvironmentReady() {
-    if (envReadyPromise) {
-      return envReadyPromise;
-    }
-
-    const loader = window.HBEnv;
-    if (loader && typeof loader.load === 'function') {
-      envReadyPromise = loader
-        .load()
-        .catch((error) => {
-          console.warn('Auth: environment file failed to load', error);
-        })
-        .then(() => {
-          return loader && loader.data ? loader.data : {};
-        });
-      return envReadyPromise;
-    }
-
-    envReadyPromise = Promise.resolve({});
-    return envReadyPromise;
+    return Promise.resolve(window.HB_PUBLIC_CONFIG || {});
   }
 
   function init() {
@@ -261,12 +239,6 @@
           state.firebaseAuth = auth;
           state.firebaseFirestore = firestore;
           state.firebaseReady = true;
-          console.log('[Firebase Auth] initialized', {
-            projectId: firebaseConfig.projectId,
-            authDomain: firebaseConfig.authDomain,
-            domain: window.location.hostname,
-            protocol: window.location.protocol,
-          });
 
           window.firebase = {
             app: () => app,

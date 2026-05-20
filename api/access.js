@@ -1,26 +1,24 @@
 const { verifyIdToken, getFirestore } = require('./_services');
-const { handleOptions, send } = require('./_http');
+const { guard, handleOptions, requireAuthHeader, send } = require('./_http');
 
 module.exports = async function (req, res) {
     if (handleOptions(req, res)) {
         return;
     }
-
-    if (req.method !== 'GET') {
-        return send(res, 405, { error: 'Method not allowed' });
+    if (guard(req, res, ['GET'])) {
+        return;
     }
 
     let uid;
     try {
-        const authHeader = req.headers.authorization;
-        if (!authHeader || !authHeader.startsWith('Bearer ')) {
-            return send(res, 401, { error: 'Unauthorized: Missing token' });
+        const token = requireAuthHeader(req);
+        if (!token) {
+            return send(req, res, 401, { error: 'Unauthorized' });
         }
-        const token = authHeader.split(' ')[1];
         const decoded = await verifyIdToken(token);
         uid = decoded.uid;
     } catch (error) {
-        return send(res, 401, { error: 'Unauthorized' });
+        return send(req, res, 401, { error: 'Unauthorized' });
     }
 
     try {
@@ -33,17 +31,16 @@ module.exports = async function (req, res) {
             .get();
 
         if (snapshot.empty) {
-            return send(res, 403, { hasAccess: false });
+            return send(req, res, 403, { hasAccess: false });
         }
 
         const order = snapshot.docs[0];
-        return send(res, 200, {
+        return send(req, res, 200, {
             hasAccess: true,
             order_id: order.id,
-            order: order.data(),
         });
     } catch (error) {
         console.error('Access Check Error:', error);
-        return send(res, 500, { error: 'Internal Server Error' });
+        return send(req, res, 500, { error: 'Internal Server Error' });
     }
 };
