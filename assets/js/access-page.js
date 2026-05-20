@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  const FALLBACK_TEMPLATE_URL = 'https://docs.google.com/spreadsheets/d/1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a/edit?usp=sharing';
+  const FALLBACK_TEMPLATE_URL = 'https://docs.google.com/spreadsheets/d/1aXbOzO8Zjb2WJxLYQzFOZoeLgDYws2cQ2R5ZpQhkIgI/edit?usp=sharing';
 
   function init() {
     const params = new URLSearchParams(window.location.search);
