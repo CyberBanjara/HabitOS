@@ -470,6 +470,13 @@ body.dark-theme.product-page .tracker-mockup {
   backdrop-filter: blur(18px);
 }
 
+.mockup-img {
+  width: 100%;
+  height: auto;
+  border-radius: 16px;
+  display: block;
+}
+
 .mockup-toolbar {
   display: flex;
   align-items: center;
