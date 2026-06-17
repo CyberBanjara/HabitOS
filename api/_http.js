@@ -27,10 +27,30 @@ function getRequestOrigin(req) {
     return (req.headers && (req.headers.origin || req.headers.Origin)) || '';
 }
 
+function isLocalHostname(hostname) {
+    return (
+        hostname === 'localhost' ||
+        hostname === '127.0.0.1' ||
+        hostname === '0.0.0.0' ||
+        hostname === '[::1]' ||
+        /^192\.168\./.test(hostname) ||
+        /^10\./.test(hostname) ||
+        /^172\.(1[6-9]|2[0-9]|3[01])\./.test(hostname)
+    );
+}
+
 function isAllowedOrigin(req) {
     const origin = getRequestOrigin(req);
     if (!origin) {
         return true;
+    }
+    try {
+        const url = new URL(origin);
+        if (isLocalHostname(url.hostname)) {
+            return true;
+        }
+    } catch (e) {
+        // ignore invalid URL
     }
     return getAllowedOrigins().has(origin);
 }

@@ -26,6 +26,18 @@
     return env;
   }
 
+  function isLocalHostname(hostname) {
+    return (
+      hostname === 'localhost' ||
+      hostname === '127.0.0.1' ||
+      hostname === '0.0.0.0' ||
+      hostname === '[::1]' ||
+      /^192\.168\./.test(hostname) ||
+      /^10\./.test(hostname) ||
+      /^172\.(1[6-9]|2[0-9]|3[01])\./.test(hostname)
+    );
+  }
+
   function resolveApiBaseUrl(configuredValue) {
     var detected = getDetectedApiBaseUrl();
 
@@ -40,10 +52,10 @@
       }
       if (
         window.location &&
-        window.location.port === '3000' &&
-        ['localhost', '127.0.0.1', '0.0.0.0'].indexOf(configured.hostname) !== -1 &&
-        configured.port &&
-        configured.port !== window.location.port
+        isLocalHostname(window.location.hostname) &&
+        window.location.port !== '3000' &&
+        isLocalHostname(configured.hostname) &&
+        (configured.port === '' || configured.port === window.location.port)
       ) {
         return detected;
       }
@@ -62,13 +74,12 @@
     var protocol = window.location.protocol;
     var hostname = window.location.hostname;
     var port = window.location.port;
-    var localHosts = ['localhost', '127.0.0.1', '0.0.0.0', '[::1]'];
 
     if (protocol === 'file:') {
       return 'http://localhost:3000/api';
     }
 
-    if (localHosts.indexOf(hostname) !== -1 && port && port !== '3000') {
+    if (isLocalHostname(hostname) && port && port !== '3000') {
       return protocol + '//' + hostname + ':3000/api';
     }
 

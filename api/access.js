@@ -22,7 +22,20 @@ module.exports = async function (req, res) {
     }
 
     try {
-        const snapshot = await getFirestore()
+        const db = getFirestore();
+        
+        // 1. Check main user document first
+        const userDoc = await db.collection('users').doc(uid).get();
+        if (userDoc.exists && userDoc.data().purchased === true) {
+            const userData = userDoc.data();
+            return send(req, res, 200, {
+                hasAccess: true,
+                order_id: userData.lastOrderId || userData.razorpayOrderId || 'legacy_purchase',
+            });
+        }
+
+        // 2. Fallback to orders subcollection
+        const snapshot = await db
             .collection('users')
             .doc(uid)
             .collection('orders')

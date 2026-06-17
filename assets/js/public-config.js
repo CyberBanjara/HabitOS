@@ -2,7 +2,7 @@
   'use strict';
 
   window.HB_PUBLIC_CONFIG = {
-  "APP_API_BASE_URL": "http://localhost:3000/api",
+  "APP_API_BASE_URL": "/api",
   "RAZORPAY_KEY_ID": "rzp_live_Sqwcp3qoO8p8Om",
   "APP_FIREBASE_CONFIG": {
     "apiKey": "AIzaSyD9VZq79ZZ3TAGqb_XNDkAokt8OeXe7XtQ",
