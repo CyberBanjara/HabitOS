@@ -5,13 +5,13 @@
   "APP_API_BASE_URL": "/api",
   "RAZORPAY_KEY_ID": "rzp_live_Sqwcp3qoO8p8Om",
   "APP_FIREBASE_CONFIG": {
-    "apiKey": "AIzaSyD9VZq79ZZ3TAGqb_XNDkAokt8OeXe7XtQ",
-    "authDomain": "himalayanhoney308.firebaseapp.com",
-    "projectId": "himalayanhoney308",
-    "storageBucket": "himalayanhoney308.firebasestorage.app",
-    "messagingSenderId": "77678631049",
-    "appId": "1:77678631049:web:339f99247cb4bd90528e58",
-    "measurementId": "G-DH8DDKKMPS"
+    "apiKey": "AIzaSyA7APqQBw0-cS9QiZbnA0TB1fESWVrYw1g",
+    "authDomain": "habbitos-308.firebaseapp.com",
+    "projectId": "habbitos-308",
+    "storageBucket": "habbitos-308.firebasestorage.app",
+    "messagingSenderId": "906819038012",
+    "appId": "1:906819038012:web:211d1a5a50e561ab92cc39",
+    "measurementId": "G-L8V0V7P40L"
   },
   "APP_TEMPLATE_SHEET_URL": "https://docs.google.com/spreadsheets/d/1LUFhc-1i6uYH4jMGNjPba_zMFkmf9NRKpF9uXpjUXtI/edit?usp=sharing"
 };
