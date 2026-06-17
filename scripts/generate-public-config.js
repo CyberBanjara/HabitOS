@@ -36,6 +36,7 @@ const publicConfig = {
   APP_API_BASE_URL: getEnv('APP_API_BASE_URL'),
   RAZORPAY_KEY_ID: getEnv('RAZORPAY_KEY_ID'),
   APP_FIREBASE_CONFIG: readFirebaseConfig(),
+  APP_TEMPLATE_SHEET_URL: getEnv('APP_TEMPLATE_SHEET_URL'),
 };
 
 const contents = `(function () {

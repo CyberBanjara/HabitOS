@@ -209,6 +209,14 @@
   }
 
   function redirectToLogin() {
+    if (window.Auth && typeof window.Auth.showLoginModal === 'function') {
+      window.Auth.showLoginModal({
+        onSuccess: function () {
+          beginPayment();
+        }
+      });
+      return;
+    }
     if (window.Auth && typeof window.Auth.redirectToAuthPage === 'function') {
       window.Auth.redirectToAuthPage('login.html', { redirectTo: 'checkout.html' });
       return;
