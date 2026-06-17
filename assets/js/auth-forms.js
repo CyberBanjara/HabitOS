@@ -181,11 +181,57 @@
     }
   }
 
+  async function handleFacebookLogin(event, statusElement) {
+    if (event) event.preventDefault();
+    const btn = event.currentTarget;
+
+    setStatus(statusElement, 'info', 'Connecting to Facebook...');
+    if (btn) btn.disabled = true;
+
+    try {
+      await window.Auth.signInWithFacebook();
+
+      setStatus(statusElement, 'success', 'Signed in! Redirecting…');
+      redirectToTarget();
+    } catch (error) {
+      console.error('Facebook Auth Error:', error);
+      if (error.code === 'auth/popup-closed-by-user') {
+        setStatus(statusElement, 'info', ''); // Clear message or show mild info
+      } else {
+        setStatus(statusElement, 'error', mapAuthError(error));
+      }
+      if (btn) btn.disabled = false;
+    }
+  }
+
+  async function handleAnonymousLogin(event, statusElement) {
+    if (event) event.preventDefault();
+    const btn = event.currentTarget;
+
+    setStatus(statusElement, 'info', 'Logging in as Guest...');
+    if (btn) btn.disabled = true;
+
+    try {
+      await window.Auth.signInAnonymously();
+
+      setStatus(statusElement, 'success', 'Logged in as Guest! Redirecting…');
+      redirectToTarget();
+    } catch (error) {
+      console.error('Anonymous Auth Error:', error);
+      setStatus(statusElement, 'error', mapAuthError(error));
+      if (btn) btn.disabled = false;
+    }
+  }
+
   function initAuthForms() {
     const loginForm = document.querySelector('form[data-auth-form="login"]');
     const signupForm = document.querySelector('form[data-auth-form="signup"]');
     const googleLoginBtn = document.getElementById('googleLoginBtn');
     const googleSignupBtn = document.getElementById('googleSignupBtn');
+    const facebookLoginBtn = document.getElementById('facebookLoginBtn');
+    const facebookSignupBtn = document.getElementById('facebookSignupBtn');
+    const anonymousLoginBtn = document.getElementById('anonymousLoginBtn');
+    const anonymousSignupBtn = document.getElementById('anonymousSignupBtn');
     const statusElement = document.querySelector('[data-auth-status]');
     const redirectTarget = resolveRedirectTarget();
 
@@ -213,6 +259,26 @@
     if (googleSignupBtn && !googleSignupBtn.dataset.hbBound) {
       googleSignupBtn.dataset.hbBound = 'true';
       googleSignupBtn.addEventListener('click', (event) => handleGoogleLogin(event, statusElement));
+    }
+
+    if (facebookLoginBtn && !facebookLoginBtn.dataset.hbBound) {
+      facebookLoginBtn.dataset.hbBound = 'true';
+      facebookLoginBtn.addEventListener('click', (event) => handleFacebookLogin(event, statusElement));
+    }
+
+    if (facebookSignupBtn && !facebookSignupBtn.dataset.hbBound) {
+      facebookSignupBtn.dataset.hbBound = 'true';
+      facebookSignupBtn.addEventListener('click', (event) => handleFacebookLogin(event, statusElement));
+    }
+
+    if (anonymousLoginBtn && !anonymousLoginBtn.dataset.hbBound) {
+      anonymousLoginBtn.dataset.hbBound = 'true';
+      anonymousLoginBtn.addEventListener('click', (event) => handleAnonymousLogin(event, statusElement));
+    }
+
+    if (anonymousSignupBtn && !anonymousSignupBtn.dataset.hbBound) {
+      anonymousSignupBtn.dataset.hbBound = 'true';
+      anonymousSignupBtn.addEventListener('click', (event) => handleAnonymousLogin(event, statusElement));
     }
   }
 

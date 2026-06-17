@@ -80,7 +80,13 @@
         return;
       }
       if (dom.orderEl && response.order_id) dom.orderEl.textContent = response.order_id;
-      setStatus(dom.status, 'Access verified for your account. Your tracker links are ready.', 'success');
+      
+      const user = window.Auth && typeof window.Auth.getUser === 'function' ? window.Auth.getUser() : null;
+      if (user && user.isAnonymous) {
+        setStatus(dom.status, 'Access verified for Guest session. IMPORTANT: Do not clear browser cookies or reset cache, or you may lose access. To save access, link to Google or email later.', 'success');
+      } else {
+        setStatus(dom.status, 'Access verified for your account. Your tracker links are ready.', 'success');
+      }
       setAccessButtonsDisabled(false);
     } catch (error) {
       setStatus(dom.status, 'No paid tracker order was found for this account.', 'error');

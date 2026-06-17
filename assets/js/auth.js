@@ -357,6 +357,7 @@
         displayName: user.displayName || '',
         photoURL: user.photoURL || '',
         role: user.role || '',
+        isAnonymous: user.isAnonymous || false,
       };
       state.idToken = tokenResult.token;
       state.tokenExpiresAt = expiration;
@@ -399,6 +400,7 @@
           displayName: auth.currentUser.displayName || '',
           photoURL: auth.currentUser.photoURL || '',
           role: '',
+          isAnonymous: auth.currentUser.isAnonymous || false,
         };
       }
       state.idToken = token;
@@ -432,6 +434,25 @@
     await resources.modules.auth.setPersistence(resources.auth, resources.modules.auth.browserLocalPersistence);
     const provider = new resources.modules.auth.GoogleAuthProvider();
     return resources.modules.auth.signInWithPopup(resources.auth, provider);
+  }
+
+  async function signInWithFacebook() {
+    const resources = await ensureFirebaseReady();
+    await resources.modules.auth.setPersistence(resources.auth, resources.modules.auth.browserLocalPersistence);
+    const provider = new resources.modules.auth.FacebookAuthProvider();
+    return resources.modules.auth.signInWithPopup(resources.auth, provider);
+  }
+
+  async function signInAnonymously() {
+    const resources = await ensureFirebaseReady();
+    await resources.modules.auth.setPersistence(resources.auth, resources.modules.auth.browserLocalPersistence);
+    const credential = await resources.modules.auth.signInAnonymously(resources.auth);
+    if (credential && credential.user && !credential.user.displayName) {
+      const randomNum = Math.floor(1000 + Math.random() * 9000);
+      const guestName = `Guest_${randomNum}`;
+      await resources.modules.auth.updateProfile(credential.user, { displayName: guestName });
+    }
+    return credential;
   }
 
   function buildApiUrl(path) {
@@ -544,6 +565,8 @@
     signInWithEmail,
     createUserWithEmail,
     signInWithGoogle,
+    signInWithFacebook,
+    signInAnonymously,
     signOut,
     apiFetch,
     ensureFirebaseReady,

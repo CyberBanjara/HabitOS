@@ -978,8 +978,17 @@ body.dark-theme.product-page .tracker-mockup {
   font-weight: 850;
 }
 
+.auth-providers-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
 .auth-secondary-link,
-.google-auth-button {
+.google-auth-button,
+.facebook-auth-button,
+.anonymous-auth-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -996,11 +1005,35 @@ body.dark-theme.product-page .tracker-mockup {
 }
 
 .auth-secondary-link:hover,
-.google-auth-button:hover {
+.google-auth-button:hover,
+.facebook-auth-button:hover,
+.anonymous-auth-button:hover {
   color: var(--product-ink);
   background: var(--product-bg);
   box-shadow: none;
   text-decoration: none;
+}
+
+.facebook-icon {
+  color: #1877F2;
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+.facebook-word {
+  font-weight: 700;
+  color: #1877F2;
+}
+
+.anonymous-icon {
+  color: #6a6a6a;
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+.anonymous-word {
+  font-weight: 700;
+  color: var(--product-ink);
 }
 
 .google-g {

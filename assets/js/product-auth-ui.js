@@ -156,10 +156,22 @@
           <div id="authModalLoginView">
             <h3 class="auth-modal-welcome">Welcome to HabitOS</h3>
             
-            <button type="button" class="google-auth-button" id="authModalGoogleBtn">
-              <span class="google-g" aria-hidden="true">G</span>
-              <span>Continue with <span class="google-word"><span>G</span><span>o</span><span>o</span><span>g</span><span>l</span><span>e</span></span></span>
-            </button>
+            <div class="auth-providers-group">
+              <button type="button" class="google-auth-button" id="authModalGoogleBtn">
+                <span class="google-g" aria-hidden="true">G</span>
+                <span>Continue with <span class="google-word"><span>G</span><span>o</span><span>o</span><span>g</span><span>l</span><span>e</span></span></span>
+              </button>
+
+              <button type="button" class="facebook-auth-button" id="authModalFacebookBtn">
+                <i class="bi bi-facebook facebook-icon"></i>
+                <span>Continue with <span class="facebook-word">Facebook</span></span>
+              </button>
+
+              <button type="button" class="anonymous-auth-button" id="authModalAnonymousBtn">
+                <i class="bi bi-incognito anonymous-icon"></i>
+                <span>Continue as <span class="anonymous-word">Guest</span></span>
+              </button>
+            </div>
             
             <div class="auth-alt-strip">
               <span></span>
@@ -238,6 +250,8 @@
     const loginForm = overlay.querySelector('#authModalLoginForm');
     const signupForm = overlay.querySelector('#authModalSignupForm');
     const googleBtn = overlay.querySelector('#authModalGoogleBtn');
+    const facebookBtn = overlay.querySelector('#authModalFacebookBtn');
+    const anonymousBtn = overlay.querySelector('#authModalAnonymousBtn');
     
     const errAlert = overlay.querySelector('#authModalError');
     const successAlert = overlay.querySelector('#authModalSuccess');
@@ -337,6 +351,60 @@
           setAlert();
         }
         googleBtn.disabled = false;
+      }
+    });
+
+    facebookBtn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      setAlert('info', 'Connecting to Facebook...');
+      facebookBtn.disabled = true;
+      try {
+        await window.Auth.signInWithFacebook();
+        setAlert('success', 'Logged in successfully!');
+        setTimeout(() => {
+          hideLoginModal();
+          facebookBtn.disabled = false;
+          if (modalOptions && modalOptions.onSuccess) {
+            modalOptions.onSuccess();
+          } else if (modalOptions && modalOptions.redirectTo) {
+            window.location.assign(modalOptions.redirectTo);
+          } else if (window.location.pathname.includes('login.html') || window.location.pathname.includes('signup.html')) {
+            window.location.assign('index.html');
+          }
+        }, 800);
+      } catch (error) {
+        console.error(error);
+        if (error.code !== 'auth/popup-closed-by-user') {
+          setAlert('error', mapAuthError(error));
+        } else {
+          setAlert();
+        }
+        facebookBtn.disabled = false;
+      }
+    });
+
+    anonymousBtn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      setAlert('info', 'Logging in as Guest...');
+      anonymousBtn.disabled = true;
+      try {
+        await window.Auth.signInAnonymously();
+        setAlert('success', 'Logged in successfully!');
+        setTimeout(() => {
+          hideLoginModal();
+          anonymousBtn.disabled = false;
+          if (modalOptions && modalOptions.onSuccess) {
+            modalOptions.onSuccess();
+          } else if (modalOptions && modalOptions.redirectTo) {
+            window.location.assign(modalOptions.redirectTo);
+          } else if (window.location.pathname.includes('login.html') || window.location.pathname.includes('signup.html')) {
+            window.location.assign('index.html');
+          }
+        }, 800);
+      } catch (error) {
+        console.error(error);
+        setAlert('error', mapAuthError(error));
+        anonymousBtn.disabled = false;
       }
     });
 

@@ -60,10 +60,22 @@
             <div id="loginError" class="inline-alert error" hidden></div>
             <div id="loginSuccess" class="inline-alert success" hidden></div>
 
-            <button type="button" class="google-auth-button" id="googleLoginBtn">
-              <span class="google-g" aria-hidden="true">G</span>
-              <span>Continue with <span class="google-word"><span>G</span><span>o</span><span>o</span><span>g</span><span>l</span><span>e</span></span></span>
-            </button>
+            <div class="auth-providers-group">
+              <button type="button" class="google-auth-button" id="googleLoginBtn">
+                <span class="google-g" aria-hidden="true">G</span>
+                <span>Continue with <span class="google-word"><span>G</span><span>o</span><span>o</span><span>g</span><span>l</span><span>e</span></span></span>
+              </button>
+
+              <button type="button" class="facebook-auth-button" id="facebookLoginBtn">
+                <i class="bi bi-facebook facebook-icon"></i>
+                <span>Continue with <span class="facebook-word">Facebook</span></span>
+              </button>
+
+              <button type="button" class="anonymous-auth-button" id="anonymousLoginBtn">
+                <i class="bi bi-incognito anonymous-icon"></i>
+                <span>Continue as <span class="anonymous-word">Guest</span></span>
+              </button>
+            </div>
 
             <div class="auth-alt-strip">
               <span></span>
